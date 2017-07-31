@@ -1,0 +1,75 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model string
+
+@{
+    Dictionary<string, List<string>> buildings = new Dictionary<string, List<string>>();
+
+    List<WebApp.Models.Class> classes = new List<WebApp.Models.Class>();
+
+    List<string> semesters = new List<string>();
+
+    using (var dbContext = new WebApp.Models.RoomScheduleContext())
+    {
+        string defaultSemester = dbContext.Semester.Where(semester => semester.Default == true).Select(semester => semester.Name).FirstOrDefault();
+
+        // Try to use Model, then defaultSemester, then "F17" as a backup.
+        string semesterToDisplay = Model != null ? Model : defaultSemester != null ? defaultSemester : "F17";
+        classes = dbContext.Class.Where(row => row.Semester == semesterToDisplay).ToList();
+        semesters = dbContext.Semester.Where(row => row.Display == true).Select(row => row.Name).ToList();
+        semesters.Sort();
+
+        foreach (var Class in classes)
+        {
+            if (Class.Building.ToLower() == "arr" || Class.Building.ToLower() == "online" || Class.Building.ToLower() == "arranged" || Class.Building.ToLower() == "off")
+            {
+                continue;
+            }
+
+            if (!buildings.ContainsKey(Class.Building))
+            {
+                buildings.Add(Class.Building, new List<string>());
+            }
+            if (!buildings[Class.Building].Contains(Class.Room))
+            {
+                buildings[Class.Building].Add(Class.Room);
+            }
+        }
+    }
+
+    // Sort each roomList
+    foreach (var roomList in buildings.Values)
+    {
+        roomList.Sort();
+    }
+
+    // Sort list of buildings
+    var buildingList = buildings.Keys.ToList();
+    buildingList.Sort();
+}
+
+<ul id="menuBar">
+    @foreach (var building in buildingList)
+    {
+        <li>
+            <a>@building</a>
+            <ul>
+                @foreach (string room in buildings[building])
+                {
+                    <li><a onclick="roomClick('@building', '@room')">@room</a></li>
+                }
+            </ul>
+        </li>
+    }
+    <li>
+        <a>Semesters</a>
+        <ul>
+            @foreach (string semester in semesters)
+            {
+                <li><a onclick="changeSemester('@semester')">@semester</a></li>
+            }
+        </ul>
+    </li>
+</ul>

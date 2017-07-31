@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="RoomScheduleModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Class">
+          <Key>
+            <PropertyRef Name="SYN" />
+          </Key>
+          <Property Name="SYN" Type="int" Nullable="false" />
+          <Property Name="Semester" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="Section" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Title" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Professor" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="Building" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="Room" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="Days" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="Begin" Type="time" Precision="0" Nullable="false" />
+          <Property Name="End" Type="time" Precision="0" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Semester">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="Default" Type="bit" Nullable="false" />
+          <Property Name="Display" Type="bit" Nullable="false" />
+        </EntityType>
+        <Association Name="Class_Semesters">
+          <End Role="Semester" Type="Self.Semester" Multiplicity="1" />
+          <End Role="Class" Type="Self.Class" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Semester">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="Class">
+              <PropertyRef Name="Semester" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="RoomScheduleModelStoreContainer">
+          <EntitySet Name="Class" EntityType="Self.Class" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Semester" EntityType="Self.Semester" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="Class_Semesters" Association="Self.Class_Semesters">
+            <End Role="Semester" EntitySet="Semester" />
+            <End Role="Class" EntitySet="Class" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="RoomScheduleModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Class">
+          <Key>
+            <PropertyRef Name="SYN" />
+          </Key>
+          <Property Name="SYN" Type="Int32" Nullable="false" />
+          <Property Name="Semester" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Section" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Title" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Professor" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Building" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Room" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Days" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Begin" Type="Time" Nullable="false" Precision="0" />
+          <Property Name="End" Type="Time" Nullable="false" Precision="0" />
+          <NavigationProperty Name="Semester1" Relationship="Self.Class_Semesters" FromRole="Class" ToRole="Semester" />
+        </EntityType>
+        <EntityType Name="Semester">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Default" Type="Boolean" Nullable="false" />
+          <Property Name="Display" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Classes" Relationship="Self.Class_Semesters" FromRole="Semester" ToRole="Class" />
+        </EntityType>
+        <Association Name="Class_Semesters">
+          <End Role="Semester" Type="Self.Semester" Multiplicity="1" />
+          <End Role="Class" Type="Self.Class" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Semester">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="Class">
+              <PropertyRef Name="Semester" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="RoomScheduleEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Classes" EntityType="Self.Class" />
+          <EntitySet Name="Semesters" EntityType="Self.Semester" />
+          <AssociationSet Name="Class_Semesters" Association="Self.Class_Semesters">
+            <End Role="Semester" EntitySet="Semesters" />
+            <End Role="Class" EntitySet="Classes" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="RoomScheduleModelStoreContainer" CdmEntityContainer="RoomScheduleEntities">
+          <EntitySetMapping Name="Classes">
+            <EntityTypeMapping TypeName="RoomScheduleModel.Class">
+              <MappingFragment StoreEntitySet="Class">
+                <ScalarProperty Name="SYN" ColumnName="SYN" />
+                <ScalarProperty Name="Semester" ColumnName="Semester" />
+                <ScalarProperty Name="Section" ColumnName="Section" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Professor" ColumnName="Professor" />
+                <ScalarProperty Name="Building" ColumnName="Building" />
+                <ScalarProperty Name="Room" ColumnName="Room" />
+                <ScalarProperty Name="Days" ColumnName="Days" />
+                <ScalarProperty Name="Begin" ColumnName="Begin" />
+                <ScalarProperty Name="End" ColumnName="End" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Semesters">
+            <EntityTypeMapping TypeName="RoomScheduleModel.Semester">
+              <MappingFragment StoreEntitySet="Semester">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Default" ColumnName="Default" />
+                <ScalarProperty Name="Display" ColumnName="Display" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

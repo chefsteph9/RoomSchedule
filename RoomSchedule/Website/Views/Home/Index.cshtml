@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@{ 
+    Dictionary<string, List<string>> buildings = new Dictionary<string, List<string>>();
+
+    List<Website.Models.Class> classes = new List<Website.Models.Class>();
+
+    using (var dbContext = new Website.Models.RoomScheduleContext())
+    {
+        classes = dbContext.Class.Where(row => row.Semester == "F17").ToList();
+
+        foreach (var Class in classes)
+        {
+            if (Class.Building.ToLower() == "arr" || Class.Building.ToLower() == "online" || Class.Building.ToLower() == "arranged" || Class.Building.ToLower() == "off")
+            {
+                continue;
+            }
+
+            if (!buildings.ContainsKey(Class.Building))
+            {
+                buildings.Add(Class.Building, new List<string>());
+            }
+            if (!buildings[Class.Building].Contains(Class.Room))
+            {
+                buildings[Class.Building].Add(Class.Room);
+            }
+        }
+    }
+}
+
+<ul id="menuBar">
+    @foreach (var building in buildings)
+    {
+        <li>
+            <a>@building.Key</a>
+            <ul>
+                @foreach (string room in building.Value)
+                {
+                    <li><a onclick="roomClick('@building.Key.ToString()', '@room')">@room</a></li>
+                }
+            </ul>
+        </li>
+    }
+</ul>
+
+<div id="scheduler"></div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#scheduler').fullCalendar({
+            header: {
+                left: 'title',
+                middle: '',
+                right: ''
+            },
+            autoDisplay: true,
+            defaultView: 'agendaWeek',
+            defaultDate: '2017-08-21',
+            minTime: '06:00:00',
+            maxTime: '22:00:00',
+            hiddenDays: [6],
+            allDaySlot: false,
+            events: function (start, end, timezone, callback) {
+                var events = getEvents()
+            }
+        });
+    });
+
+    $('#menuBar').puimenubar({});
+
+    function roomClick(building, room) {
+        var events = [];
+    }
+
+    function getEvents() {
+
+    }
+
+</script>

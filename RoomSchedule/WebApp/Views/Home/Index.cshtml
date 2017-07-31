@@ -1,0 +1,104 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="menuContainer">
+    @{ 
+        string defaultSemester;
+        using (var dbContext = new WebApp.Models.RoomScheduleContext())
+        {
+            defaultSemester = dbContext.Semester.Where(semester => semester.Default == true).Select(semester => semester.Name).FirstOrDefault();
+        }
+    }
+    @await Component.InvokeAsync("Menu", new { semester = defaultSemester })
+</div>
+
+<div id="scheduler"></div>
+
+<script type="text/javascript">
+    var globalBuilding;
+    var globalRoom;
+    var globalSemester = "F17";
+
+    $(document).ready(function () {
+        globalBuilding = "BH";
+        globalRoom = "2319";
+        $('#scheduler').fullCalendar({
+            header: {
+                left: 'title',
+                middle: '',
+                right: ''
+            },
+
+            autoDisplay: true,
+            defaultView: 'agendaWeek',
+            defaultDate: '2017-08-21',
+            minTime: '06:00:00',
+            maxTime: '22:00:00',
+            hiddenDays: [6],
+            allDaySlot: false,
+            events: function (start, end, timezone, callback) {
+                getEvents(callback);
+            },
+            eventRender: function (event, element) {
+                element[0].title = event.description;
+            }
+        });
+
+        $('#menuBar').puimenubar({});
+    });
+
+
+    function roomClick(building, room) {
+        globalBuilding = building;
+        globalRoom = room;
+        $('#scheduler').fullCalendar('refetchEvents');
+    };
+
+    function getEvents(callback) {
+        $.ajax({
+            url: "/Home/GetClasses",
+            data: { semester: globalSemester, building: globalBuilding, room: globalRoom },
+            type: "get"
+        }).done(function (data) {
+            var events = [];
+            $.each(data, function (index, value) {
+                classes = createClassEvents(value);
+                events.push.apply(events, classes);
+            });
+            callback(events);
+        }).fail(function () {
+            alert("Fail");
+        });
+    }
+
+    // Given a class, creates an event for each day the class meets
+    function createClassEvents(theClass){
+        var events = []
+        var days = theClass.days.split(/(?=[A-Z])/);
+        $.each(days, function (index, value) {
+            date = value == "S" ? 20 : value == "M" ? 21 : value == "T" ? 22 : value == "W" ? 23 : value == "Th" ? 24 : 25;
+            events.push({
+                title: theClass.title,
+                description: "Professor: " + theClass.professor,
+                start: '2017-08-' + date + 'T' + theClass.begin,
+                end: '2017-08-' + date + 'T' + theClass.end
+            })
+        });
+        return events;
+    }
+
+    function changeSemester(semester) {
+        globalSemester = semester;
+        $.ajax({
+            url: "/Home/GetMenu",
+            data: { semester: globalSemester },
+            type: "get",
+        }).done(function (data) {
+            $('#menuContainer').html(data);
+            $('#menuBar').puimenubar({});
+        })
+        $('#scheduler').fullCalendar('refetchEvents');
+    }
+
+</script>

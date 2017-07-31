@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@{
+    using (var dbcontext = webpage)
+    List<WebPage.Models.Semester> semesters = new List<RoomsWebpage.Models.Semester>();
+    Dictionary<string, string> rooms = new Dictionary<string, string>();
+    using (var dbcontext = new RoomsWebpage.Models.RoomScheduleContext())
+    {
+        semesters = dbcontext.Semester.ToList();
+        var roomsTemp = dbcontext.Class.Where(row => row.Semester == "F17").ToList();
+    }
+}
+
+<ul id="menuBar">
+    <li>
+        <a>Building 1</a>
+        <ul>
+            <li><a href="/Home/Contact">Room 1</a></li>
+            <li><a>Room 2</a></li>
+            <li><a>Room 3</a></li>
+            <li><a>Room 4</a></li>
+            <li><a>Room 5</a></li>
+        </ul>
+    </li>
+    <li>
+        <a>Building 2</a>
+        <ul>
+            <li><a>Room 1</a></li>
+            <li><a>Room 2</a></li>
+            <li><a>Room 3</a></li>
+            <li><a>Room 4</a></li>
+            <li><a>Room 5</a></li>
+        </ul>
+    </li>
+    <li>
+        <a>Building 3</a>
+        <ul>
+            <li><a>Room 1</a></li>
+            <li><a>Room 2</a></li>
+            <li><a>Room 3</a></li>
+            <li><a>Room 4</a></li>
+            <li><a>Room 5</a></li>
+        </ul>
+    </li>
+</ul>
+
+<div id="scheduler"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#scheduler').fullCalendar({
+            header: {
+                left: 'title',
+                middle: '',
+                right: ''
+            },
+            autoDisplay: true,
+            defaultView: 'agendaWeek',
+            defaultDate: '2017-08-21',
+            minTime: '06:00:00',
+            maxTime: '22:00:00',
+            hiddenDays: [6],
+            allDaySlot: false
+        });
+    });
+    $('#menuBar').puimenubar({
+    });
+</script>
